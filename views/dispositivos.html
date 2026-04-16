@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Dispositivos - RethaSmart</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="navbar-left">
+    🛡️ Retha Smart - Monitoramento
+  </div>
+  <div class="navbar-right">
+    <a href="/dashboard">Dashboard</a>
+    <a href="/condominios">Condomínios</a>
+    <a href="/dispositivos">Dispositivos</a>
+    <a href="/login">Sair</a>
+  </div>
+</nav>
+
+<div class="container">
+  <h3>Novo Dispositivo</h3>
+  <input type="text" id="device_id" placeholder="Device ID (ex: ESP32-001)">
+  <input type="text" id="nome" placeholder="Nome do dispositivo (ex: Central Portaria)">
+  <select id="condominio_id">
+    <option value="">Selecione um condomínio</option>
+  </select>
+<button onclick="criarDispositivo()">Cadastrar</button>
+
+  <hr style="margin: 20px 0; border-color: #1e293b;">
+
+  <h3>Dispositivos cadastrados</h3>
+  <div id="lista"></div>
+</div>
+
+<script src="/js/auth.js"></script>
+<script src="/js/dispositivos.js"></script>
+
+
+</body>
+</html>

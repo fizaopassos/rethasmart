@@ -1,0 +1,312 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #f8fafc; /* Fundo claro e suave */
+  color: #334155; /* Texto principal cinza escuro */
+}
+
+/* Header mais clean com sombra sutil */
+header {
+  background: #ffffff;
+  padding: 15px 24px;
+  font-size: 20px;
+  font-weight: 600;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.header-actions {
+  display: flex;
+  gap: 10px;
+}
+
+/* Botões modernos */
+.header-actions button,
+button {
+  background: #2563eb; /* Azul primário */
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.header-actions button:hover,
+button:hover {
+  background: #1d4ed8;
+}
+
+/* Botão de sair vermelho */
+.logout-btn {
+  background: #ef4444 !important;
+}
+
+.logout-btn:hover {
+  background: #dc2626 !important;
+}
+
+.container {
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Inputs em tema claro */
+input, select {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 15px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #334155;
+  font-size: 15px;
+  transition: border-color 0.2s;
+}
+
+input:focus, select:focus {
+  outline: none;
+  border-color: #2563eb;
+}
+
+.status {
+  margin-bottom: 20px;
+  font-size: 14px;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.vazio {
+  padding: 30px;
+  background: #ffffff;
+  border-radius: 10px;
+  text-align: center;
+  color: #64748b;
+  border: 1px dashed #cbd5e1;
+}
+
+/* ---------- INDICADORES (RESUMO) ---------- */
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.summary-card {
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  border: 1px solid #e2e8f0;
+  border-left: 5px solid #cbd5e1;
+  display: flex;
+  flex-direction: column;
+}
+
+.summary-title {
+  font-size: 13px;
+  text-transform: uppercase;
+  font-weight: bold;
+  color: #64748b;
+  margin-bottom: 8px;
+}
+
+.summary-value {
+  font-size: 32px;
+  font-weight: bold;
+  color: #0f172a;
+}
+
+.summary-card.total { border-left-color: #3b82f6; }
+.summary-card.normal { border-left-color: #22c55e; }
+.summary-card.alerta { border-left-color: #ef4444; }
+.summary-card.falha { border-left-color: #f59e0b; }
+
+/* ---------- GRID DE DISPOSITIVOS ---------- */
+.grid-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+.device-card {
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 20px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.device-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  border-color: #cbd5e1;
+}
+
+.device-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.device-name {
+  font-size: 18px;
+  font-weight: bold;
+  color: #0f172a;
+}
+
+.device-condominio {
+  color: #64748b;
+  margin-top: 4px;
+  font-size: 14px;
+}
+
+.device-id {
+  color: #94a3b8;
+  margin-top: 12px;
+  font-size: 13px;
+}
+
+.device-last-event {
+  margin-top: 16px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.device-last-date {
+  margin-top: 4px;
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+/* Badges de Status Modernos */
+.badge-status {
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.status-normal { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+.status-alerta { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; animation: piscar 2s infinite; }
+.status-falha { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+.status-sem-evento { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
+
+@keyframes piscar {
+  0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+  70% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+/* Listas genéricas (condomínios, eventos modal) */
+.card {
+  background: #ffffff;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  border: 1px solid #e2e8f0;
+  border-left: 4px solid #2563eb;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+}
+
+.evento {
+  font-size: 16px;
+  margin-top: 6px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+/* Modal */
+.modal-bg {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(2px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 1000;
+}
+
+.modal {
+  width: 100%;
+  max-width: 760px;
+  max-height: 85vh;
+  overflow: auto;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.modal-header h3 {
+  margin: 0;
+  color: #0f172a;
+}
+
+.top-line {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.navbar {
+  background-color: #1f2937;
+  color: white;
+  padding: 12px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.navbar a {
+  color: white;
+  margin-left: 15px;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.navbar a:hover {
+  text-decoration: underline;
+}
+
+.alerta-flash {
+    animation: flash 0.5s ease-in-out 3;
+    border: 2px solid #ff3b3b;
+}
+
+@keyframes flash {
+    0% { background-color: #fff; }
+    50% { background-color: #ffcccc; }
+    100% { background-color: #fff; }
+}

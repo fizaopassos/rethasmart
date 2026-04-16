@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RethaSmart - Dashboard</title>
+  <link rel="stylesheet" href="/css/dashboard.css">
+</head>
+<body>
+
+<header>
+  <div class="header-logo">🚨 RethaSmart</div>
+  <nav>
+    <a href="/condominios">Condomínios</a>
+    <a href="/dispositivos">Dispositivos</a>
+    <button onclick="logout()">Sair</button>
+  </nav>
+</header>
+
+<div class="container">
+  <div class="status-bar" id="status">⏳ Conectando...</div>
+  <div class="grid-cards" id="cards"></div>
+</div>
+
+<!-- Modal de histórico -->
+<div class="modal-bg" id="modalBg" onclick="fecharModal(event)">
+  <div class="modal-content" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <h3 id="modalTitulo">Histórico</h3>
+      <span class="close-btn" onclick="fecharModal()">×</span>
+    </div>
+    <div class="modal-body" id="modalEventos"></div>
+  </div>
+</div>
+
+<!-- Som de alerta (coloque o arquivo em public/sounds/alerta.mp3) -->
+<audio id="som-alerta" src="/sounds/alerta.mp3" preload="auto"></audio>
+
+<script src="/js/dashboard.js"></script>
+</body>
+</html>
