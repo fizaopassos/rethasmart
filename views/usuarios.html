@@ -12,7 +12,6 @@
         <div class="sidebar-logo-mark">r</div>
         <div class="sidebar-logo-text">retha</div>
       </div>
-
       <nav class="sidebar-menu">
         <a href="/dashboard">
           <span class="menu-icon">📊</span>
@@ -26,12 +25,11 @@
           <span class="menu-icon">📟</span>
           <span class="menu-text">Dispositivos</span>
         </a>
-        <a href="/usuarios" class="active" id="menu-usuarios">
+        <a href="/usuarios" class="active">
           <span class="menu-icon">👥</span>
           <span class="menu-text">Usuários</span>
         </a>
       </nav>
-
       <div class="sidebar-footer">
         <button onclick="logout()">
           <span class="menu-icon">↩</span>
@@ -49,6 +47,7 @@
       </div>
 
       <div class="form-grid">
+
         <!-- Formulário de Criação -->
         <div class="col-4">
           <div class="card">
@@ -56,32 +55,34 @@
               <h3>Novo Usuário</h3>
               <p>Adicione um operador ou administrador.</p>
             </div>
-            
+
             <label>Nome Completo</label>
             <input id="nome" placeholder="Ex: Maria Souza">
-            
-            <label style="margin-top: 10px;">E-mail de Acesso</label>
+
+            <label style="margin-top:10px;">E-mail de Acesso</label>
             <input id="email" type="email" placeholder="email@dominio.com">
-            
-            <label style="margin-top: 10px;">Definir Senha</label>
+
+            <label style="margin-top:10px;">Definir Senha</label>
             <input id="senha" type="password" placeholder="Mínimo 6 caracteres">
 
-            <label style="margin-top: 10px;">Nível de Acesso</label>
+            <label style="margin-top:10px;">Nível de Acesso</label>
             <select id="role">
               <option value="operador">Operador (Restrito)</option>
               <option value="gerente">Gerente (Múltiplos)</option>
               <option value="admin">Administrador (Total)</option>
             </select>
 
-            <label style="margin-top: 10px;">Vincular Condomínios (Segure CTRL)</label>
+            <label style="margin-top:10px;">Vincular Condomínios <span style="color:var(--muted);font-size:12px;">(Segure CTRL)</span></label>
             <select id="condominios" multiple></select>
 
-            <button class="btn-primary" style="width: 100%; margin-top: 18px;" onclick="criarUsuario()">Criar Usuário</button>
-            <div id="msg" class="msg"></div>
+            <button class="btn-primary" style="width:100%;margin-top:18px;" onclick="criarUsuario()">
+              Criar Usuário
+            </button>
+            <div id="msg-criar" class="msg"></div>
           </div>
         </div>
 
-        <!-- Tabela de Gestão de Usuários -->
+        <!-- Tabela -->
         <div class="col-8">
           <div class="panel">
             <div class="panel-header">
@@ -90,7 +91,7 @@
                 <p>Lista de todas as contas do sistema.</p>
               </div>
             </div>
-            <div class="panel-body" style="padding: 0;">
+            <div class="panel-body" style="padding:0;">
               <div class="table-container">
                 <table class="data-table">
                   <thead>
@@ -104,7 +105,9 @@
                   </thead>
                   <tbody id="lista-usuarios">
                     <tr>
-                      <td colspan="5" style="text-align: center; color: var(--muted); padding: 20px;">Carregando usuários...</td>
+                      <td colspan="5" style="text-align:center;color:var(--muted);padding:20px;">
+                        Carregando...
+                      </td>
                     </tr>
                   </tbody>
                 </table>
@@ -112,118 +115,288 @@
             </div>
           </div>
         </div>
-        
+
       </div>
     </main>
   </div>
 
-<script src="/js/auth.js"></script>
-<script>
-function verificarAcesso() {
-  const token = localStorage.getItem('token');
-  if (!token) return window.location.href = '/login';
-  try {
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    if (payload.role !== 'admin') window.location.href = '/dashboard';
-  } catch (err) { window.location.href = '/login'; }
-}
+  <!-- =====================
+       MODAL EDITAR USUÁRIO
+       ===================== -->
+  <div id="modal-editar" class="modal-overlay" style="display:none;">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>Editar Usuário</h3>
+        <button class="modal-close" onclick="fecharModal()">✕</button>
+      </div>
 
-verificarAcesso();
+      <input type="hidden" id="edit-id">
 
-function mostrarMsg(texto, tipo) {
-  const el = document.getElementById('msg');
-  el.innerText = texto;
-  el.className = 'msg ' + tipo;
-  setTimeout(() => { el.className = 'msg'; el.innerText = ''; }, 4000);
-}
+      <label>Nome Completo</label>
+      <input id="edit-nome" placeholder="Ex: Maria Souza">
 
-async function carregarCondominios() {
-  try {
-    const res = await fetch('/api/usuarios/condominios', { headers: authHeader() });
-    const data = await res.json();
-    const select = document.getElementById('condominios');
-    const lista = Array.isArray(data) ? data : (data.condominios || []);
-    
-    lista.forEach(c => {
-      const opt = document.createElement('option');
-      opt.value = c.id;
-      opt.textContent = c.nome;
-      select.appendChild(opt);
-    });
-  } catch(e) { console.error("Erro", e); }
-}
+      <label style="margin-top:10px;">E-mail de Acesso</label>
+      <input id="edit-email" type="email" placeholder="email@dominio.com">
 
-// 🔥 NOVA FUNÇÃO: Busca e plota na tabela
-async function carregarUsuarios() {
-  try {
-    const res = await fetch('/api/usuarios', { headers: authHeader() });
-    if (res.status === 401) return logout();
-    if (!res.ok) throw new Error('Falha ao listar usuários');
+      <label style="margin-top:10px;">
+        Nova Senha
+        <span style="color:var(--muted);font-size:12px;">(deixe em branco para manter)</span>
+      </label>
+      <input id="edit-senha" type="password" placeholder="Nova senha (opcional)">
 
-    const data = await res.json();
-    const lista = document.getElementById('lista-usuarios');
-    lista.innerHTML = '';
+      <label style="margin-top:10px;">Nível de Acesso</label>
+      <select id="edit-role">
+        <option value="operador">Operador (Restrito)</option>
+        <option value="gerente">Gerente (Múltiplos)</option>
+        <option value="admin">Administrador (Total)</option>
+      </select>
 
-    if (data.length === 0) {
-      lista.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 20px;">Nenhum usuário.</td></tr>';
-      return;
+      <label style="margin-top:10px;">
+        Vincular Condomínios
+        <span style="color:var(--muted);font-size:12px;">(Segure CTRL)</span>
+      </label>
+      <select id="edit-condominios" multiple></select>
+
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="fecharModal()">Cancelar</button>
+        <button class="btn-primary" id="btn-salvar" onclick="salvarEdicao()">Salvar Alterações</button>
+      </div>
+
+      <div id="msg-edit" class="msg"></div>
+    </div>
+  </div>
+
+  <script src="/js/auth.js"></script>
+  <script>
+
+    /* ===========================
+       ACESSO
+    =========================== */
+    (function verificarAcesso() {
+      const token = localStorage.getItem('token');
+      if (!token) return window.location.href = '/login';
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        if (payload.role !== 'admin') window.location.href = '/dashboard';
+      } catch (e) {
+        window.location.href = '/login';
+      }
+    })();
+
+    /* ===========================
+       MENSAGENS
+    =========================== */
+    function mostrarMsg(id, texto, tipo) {
+      const el = document.getElementById(id);
+      el.innerText = texto;
+      el.className = 'msg ' + tipo;
+      setTimeout(() => { el.className = 'msg'; el.innerText = ''; }, 4000);
     }
 
-    data.forEach(user => {
-      const tr = document.createElement('tr');
-      let badgeClass = 'role-operador';
-      if (user.role === 'admin') badgeClass = 'role-admin';
-      else if (user.role === 'gerente') badgeClass = 'role-gerente';
+    /* ===========================
+       CARREGAR CONDOMÍNIOS
+    =========================== */
+    async function carregarCondominios() {
+      try {
+        const res = await fetch('/api/usuarios/condominios', { headers: authHeader() });
+        const lista = await res.json();
 
-      tr.innerHTML = `
-        <td><strong>#${user.id}</strong></td>
-        <td>${user.nome || '<span style="color:var(--muted)">Sem nome</span>'}</td>
-        <td>${user.email}</td>
-        <td><span class="badge-role ${badgeClass}">${user.role}</span></td>
-        <td><button class="btn-secondary btn-small" onclick="alert('Funcionalidade de editar em breve')">Editar</button></td>
-      `;
-      lista.appendChild(tr);
+        const selectCriar  = document.getElementById('condominios');
+        const selectEditar = document.getElementById('edit-condominios');
+
+        lista.forEach(c => {
+          // select de criação
+          const o1 = document.createElement('option');
+          o1.value = c.id;
+          o1.textContent = c.nome;
+          selectCriar.appendChild(o1);
+
+          // select do modal (começa vazio, preenchido no abrirModal)
+          const o2 = document.createElement('option');
+          o2.value = c.id;
+          o2.textContent = c.nome;
+          selectEditar.appendChild(o2);
+        });
+
+      } catch (e) {
+        console.error('Erro ao carregar condomínios', e);
+      }
+    }
+
+    /* ===========================
+       CARREGAR TABELA
+    =========================== */
+    async function carregarUsuarios() {
+      const tbody = document.getElementById('lista-usuarios');
+      try {
+        const res = await fetch('/api/usuarios', { headers: authHeader() });
+        if (res.status === 401) return logout();
+        if (!res.ok) throw new Error();
+
+        const data = await res.json();
+        tbody.innerHTML = '';
+
+        if (data.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;">Nenhum usuário.</td></tr>';
+          return;
+        }
+
+        data.forEach(user => {
+          let badgeClass = 'role-operador';
+          if (user.role === 'admin')   badgeClass = 'role-admin';
+          if (user.role === 'gerente') badgeClass = 'role-gerente';
+
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td><strong>#${user.id}</strong></td>
+            <td>${user.nome || '<span style="color:var(--muted)">Sem nome</span>'}</td>
+            <td>${user.email}</td>
+            <td><span class="badge-role ${badgeClass}">${user.role}</span></td>
+            <td>
+              <button class="btn-secondary btn-small" onclick="abrirModal(${user.id})">
+                Editar
+              </button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+
+      } catch (e) {
+        tbody.innerHTML = '<tr><td colspan="5" style="color:red;text-align:center;">Erro ao carregar lista.</td></tr>';
+      }
+    }
+
+    /* ===========================
+       CRIAR USUÁRIO
+    =========================== */
+    async function criarUsuario() {
+      const nome  = document.getElementById('nome').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const senha = document.getElementById('senha').value;
+      const role  = document.getElementById('role').value;
+      const condominios = Array.from(
+        document.getElementById('condominios').selectedOptions
+      ).map(o => Number(o.value));
+
+      if (!email || !senha) return mostrarMsg('msg-criar', 'Preencha e-mail e senha', 'erro');
+
+      try {
+        const res = await fetch('/api/usuarios', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...authHeader() },
+          body: JSON.stringify({ nome, email, senha, role, condominios })
+        });
+        const data = await res.json();
+
+        if (!res.ok) return mostrarMsg('msg-criar', data.erro || 'Erro ao criar', 'erro');
+
+        mostrarMsg('msg-criar', 'Usuário criado com sucesso!', 'ok');
+        document.getElementById('nome').value  = '';
+        document.getElementById('email').value = '';
+        document.getElementById('senha').value = '';
+        document.getElementById('condominios').selectedIndex = -1;
+        carregarUsuarios();
+
+      } catch (e) {
+        mostrarMsg('msg-criar', 'Erro no servidor', 'erro');
+      }
+    }
+
+    /* ===========================
+       MODAL — ABRIR
+    =========================== */
+    async function abrirModal(id) {
+      try {
+        const res = await fetch(`/api/usuarios/${id}`, { headers: authHeader() });
+        if (!res.ok) throw new Error('Usuário não encontrado');
+        const user = await res.json();
+
+        document.getElementById('edit-id').value    = user.id;
+        document.getElementById('edit-nome').value  = user.nome || '';
+        document.getElementById('edit-email').value = user.email;
+        document.getElementById('edit-senha').value = '';
+        document.getElementById('edit-role').value  = user.role;
+
+        // Marca condomínios vinculados
+        Array.from(document.getElementById('edit-condominios').options).forEach(opt => {
+          opt.selected = user.condominios.includes(Number(opt.value));
+        });
+
+        // Limpa mensagem anterior
+        const msg = document.getElementById('msg-edit');
+        msg.className = 'msg';
+        msg.innerText = '';
+
+        document.getElementById('modal-editar').style.display = 'flex';
+
+      } catch (e) {
+        alert('Erro ao abrir edição: ' + e.message);
+      }
+    }
+
+    /* ===========================
+       MODAL — FECHAR
+    =========================== */
+    function fecharModal() {
+      document.getElementById('modal-editar').style.display = 'none';
+    }
+
+    // Fecha clicando fora do box
+    document.getElementById('modal-editar').addEventListener('click', function(e) {
+      if (e.target === this) fecharModal();
     });
-  } catch(e) {
-    document.getElementById('lista-usuarios').innerHTML = '<tr><td colspan="5" style="color:red;text-align:center;">Erro ao carregar lista.</td></tr>';
-  }
-}
 
-async function criarUsuario() {
-  const nome = document.getElementById('nome').value;
-  const email = document.getElementById('email').value;
-  const senha = document.getElementById('senha').value;
-  const role = document.getElementById('role').value;
-  const condSelect = document.getElementById('condominios');
-  const condominios = Array.from(condSelect.selectedOptions).map(o => o.value);
+    /* ===========================
+       MODAL — SALVAR
+    =========================== */
+    async function salvarEdicao() {
+      const id    = document.getElementById('edit-id').value;
+      const nome  = document.getElementById('edit-nome').value.trim();
+      const email = document.getElementById('edit-email').value.trim();
+      const senha = document.getElementById('edit-senha').value;
+      const role  = document.getElementById('edit-role').value;
+      const condominios = Array.from(
+        document.getElementById('edit-condominios').selectedOptions
+      ).map(o => Number(o.value));
 
-  if(!email || !senha) return mostrarMsg("Preencha email e senha", "erro");
+      if (!email) return mostrarMsg('msg-edit', 'E-mail obrigatório', 'erro');
 
-  try {
-    const res = await fetch('/api/usuarios', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', ...authHeader() },
-      body: JSON.stringify({ nome, email, senha, role, condominios })
-    });
-    const data = await res.json();
+      const btn = document.getElementById('btn-salvar');
+      btn.disabled = true;
+      btn.textContent = 'Salvando...';
 
-    if (!res.ok) return mostrarMsg(data.erro || "Erro", 'erro');
+      try {
+        const res = await fetch(`/api/usuarios/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json', ...authHeader() },
+          body: JSON.stringify({ nome, email, senha, role, condominios })
+        });
 
-    mostrarMsg('Usuário criado com sucesso!', 'ok');
-    document.getElementById('nome').value = '';
-    document.getElementById('email').value = '';
-    document.getElementById('senha').value = '';
-    
-    // Atualiza a tabela na hora
+        const data = await res.json();
+
+        if (!res.ok) {
+          mostrarMsg('msg-edit', data.erro || 'Erro ao salvar', 'erro');
+          return;
+        }
+
+        mostrarMsg('msg-edit', 'Salvo com sucesso!', 'ok');
+        carregarUsuarios();
+        setTimeout(fecharModal, 1200);
+
+      } catch (e) {
+        mostrarMsg('msg-edit', 'Erro no servidor', 'erro');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Salvar Alterações';
+      }
+    }
+
+    /* ===========================
+       INICIALIZAÇÃO
+    =========================== */
+    carregarCondominios();
     carregarUsuarios();
-    
-  } catch (err) {
-    mostrarMsg('Erro no servidor', 'erro');
-  }
-}
 
-carregarCondominios();
-carregarUsuarios();
-</script>
+  </script>
 </body>
 </html>
