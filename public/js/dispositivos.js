@@ -12,34 +12,44 @@ async function carregarDispositivos() {
 
   lista.innerHTML = "";
 
+  if(data.length === 0) {
+    lista.innerHTML = `<div style="grid-column:1/-1;text-align:center;color:var(--muted);padding:20px;">Nenhum dispositivo encontrado.</div>`;
+    return;
+  }
+
   data.forEach(d => {
     const item = document.createElement('div');
-    item.className = "card";
+    // Usando o estilo idêntico ao do Dashboard
+    item.className = "device-card status-offline"; 
 
     item.innerHTML = `
-  <strong>${d.nome}</strong><br>
-  Device ID: ${d.device_id}<br>
-  Condomínio: ${d.condominio_nome || '-'}<br>
+      <div class="device-top">
+        <div class="device-name">${d.nome}</div>
+        <div class="badge badge-offline" style="background:var(--surface-2); border:1px solid var(--border); color:var(--text);">ID: ${d.device_id}</div>
+      </div>
+      
+      <div class="device-info" style="margin-bottom: 12px;">
+        📍 ${d.condominio_nome || 'Sem condomínio vinculado'}
+      </div>
 
-  <small>
-    API Key: 
-    <span id="key-${d.id}" data-key="${d.api_key}">
-      **************
-    </span>
-  </small><br>
+      <div style="background: var(--bg); padding: 12px; border-radius: 10px; border: 1px solid var(--border);">
+        <small style="display:block; color:var(--muted); font-weight:600; font-size: 0.75rem; margin-bottom:6px;">API KEY:</small>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <code id="key-${d.id}" data-key="${d.api_key}" style="font-family:monospace; font-size:0.9rem; color:#1f5ad1;">**************</code>
+          <button class="btn-secondary btn-small" onclick="toggleKey(${d.id})" title="Mostrar/Ocultar">👁️</button>
+        </div>
+      </div>
 
-  <button onclick="toggleKey(${d.id})">👁️ Mostrar</button>
-  <button onclick="copiar('${d.api_key}')">📋 Copiar</button>
-  <button onclick="gerarNovaKey(${d.id})">🔄 Nova API Key</button>
-
-  <div id="status-${d.id}" style="margin-top:8px;font-size:0.9rem;color:#999;">
-    🔴 Offline
-  </div>
-`;
+      <div style="display:flex; gap:8px; margin-top:14px;">
+        <button class="btn-secondary btn-small" style="flex:1;" onclick="copiar('${d.api_key}')">📋 Copiar API</button>
+        <button class="btn-primary btn-small" style="flex:1; background:var(--warning); border:none;" onclick="gerarNovaKey(${d.id})">🔄 Gerar Nova</button>
+      </div>
+    `;
 
     lista.appendChild(item);
   });
 }
+
 
 async function criarDispositivo() {
   const nome = document.getElementById('nome').value;

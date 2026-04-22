@@ -5,19 +5,31 @@ const pool = require('../db');
 const autenticar = require('../middleware/authUser');
 const autenticarDispositivo = require('../middleware/authDevice');
 
-// ─── GET EVENTOS (usuário) ─────────────────────────────
+// ─── GET EVENTOS ─────────────────────────────
 router.get('/', autenticar, async (req, res) => {
   try {
     const userId = req.user.user_id;
+    const role = req.user.role;
 
-    const result = await pool.query(`
-      SELECT e.*
-      FROM eventos e
-      JOIN usuarios_condominios uc ON uc.condominio_id = e.condominio_id
-      WHERE uc.usuario_id = $1
-      ORDER BY e.created_at DESC
-      LIMIT 100
-    `, [userId]);
+    let result;
+
+    if (role === 'admin') {
+      result = await pool.query(`
+        SELECT *
+        FROM eventos
+        ORDER BY created_at DESC
+        LIMIT 100
+      `);
+    } else {
+      result = await pool.query(`
+        SELECT e.*
+        FROM eventos e
+        JOIN usuarios_condominios uc ON uc.condominio_id = e.condominio_id
+        WHERE uc.usuario_id = $1
+        ORDER BY e.created_at DESC
+        LIMIT 100
+      `, [userId]);
+    }
 
     res.json(result.rows);
 
@@ -26,7 +38,6 @@ router.get('/', autenticar, async (req, res) => {
     res.status(500).send("Erro ao buscar eventos");
   }
 });
-
 
 // ─── POST ALERTA (ESP32) ─────────────────────────────
 router.post('/alerta', autenticarDispositivo, async (req, res) => {
@@ -39,8 +50,6 @@ router.post('/alerta', autenticarDispositivo, async (req, res) => {
   }
 
   try {
-
-    // 🔍 busca dados do dispositivo
     const device = await pool.query(`
       SELECT d.*, c.nome AS condominio_nome
       FROM dispositivos d
@@ -56,51 +65,28 @@ router.post('/alerta', autenticarDispositivo, async (req, res) => {
 
     // ─── HEARTBEAT ─────────────────────────────
     if (evento === 'heartbeat') {
-
       const statusAnterior = disp?.status;
-
       await pool.query(`
-        UPDATE dispositivos
-        SET last_seen = NOW(),
-            status = 'online'
-        WHERE device_id = $1
+        UPDATE dispositivos SET last_seen = NOW(), status = 'online' WHERE device_id = $1
       `, [device_id]);
 
-      // 🟢 voltou online
       if (statusAnterior === 'offline') {
-
-        const eventoOnline = {
-          device_id,
-          evento: 'DISPOSITIVO ONLINE',
-          origem: 'sistema',
-          created_at: new Date()
-        };
+        const eventoOnline = { device_id, evento: 'DISPOSITIVO ONLINE', origem: 'sistema', created_at: new Date() };
 
         await pool.query(`
           INSERT INTO eventos (device_id, condominio_id, evento, origem)
           VALUES ($1, $2, $3, $4)
-        `, [
-          device_id,
-          condominio_id,
-          'DISPOSITIVO ONLINE',
-          'sistema'
-        ]);
+        `, [device_id, condominio_id, 'DISPOSITIVO ONLINE', 'sistema']);
 
         broadcast(req, eventoOnline);
         console.log(`🟢 ONLINE: ${device_id}`);
       }
-
       return res.json({ status: 'heartbeat ok' });
     }
 
     // ─── EVENTO NORMAL ─────────────────────────────
-
-    // atualiza presença
     await pool.query(`
-      UPDATE dispositivos
-      SET last_seen = NOW(),
-          status = 'online'
-      WHERE device_id = $1
+      UPDATE dispositivos SET last_seen = NOW(), status = 'online' WHERE device_id = $1
     `, [device_id]);
 
     const result = await pool.query(`
@@ -116,9 +102,7 @@ router.post('/alerta', autenticarDispositivo, async (req, res) => {
     };
 
     broadcast(req, eventoSalvo);
-
     console.log(`🚨 ${evento} | ${device_id}`);
-
     res.json({ status: "ok", evento: eventoSalvo });
 
   } catch (err) {
@@ -126,7 +110,6 @@ router.post('/alerta', autenticarDispositivo, async (req, res) => {
     res.status(500).send("Erro ao salvar evento");
   }
 });
-
 
 // ─── FUNÇÃO WEBSOCKET ─────────────────────────────
 function broadcast(req, evento) {

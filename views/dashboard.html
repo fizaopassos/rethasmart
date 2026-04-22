@@ -8,6 +8,8 @@
 </head>
 <body>
   <div class="app-shell">
+
+    <!-- ═══════════════════════════════════════ SIDEBAR -->
     <aside class="sidebar">
       <div class="sidebar-header">
         <div class="sidebar-logo-mark">r</div>
@@ -41,14 +43,20 @@
       </div>
     </aside>
 
+    <!-- ═══════════════════════════════════════ CONTEÚDO PRINCIPAL -->
     <main class="main">
+
+      <!-- TOPBAR -->
       <div class="topbar">
         <div class="page-title">
-          <h1>Central de Monitoramento</h1>
+          <h1>Retha Smart - Monitoramento</h1>
           <p>Status em tempo real das centrais de incêndio e dispositivos conectados.</p>
         </div>
-
         <div class="topbar-right">
+          <div class="top-chip">
+            <small>Última atualização</small>
+            <strong id="ultima-atualizacao">-</strong>
+          </div>
           <div class="top-chip">
             <small>Ambiente</small>
             <strong>Operação ao Vivo</strong>
@@ -60,52 +68,80 @@
         </div>
       </div>
 
+      <!-- KPIs -->
       <div class="container-section">
         <div class="kpi-grid">
+
           <div class="kpi-card primary">
             <div class="kpi-label">Dispositivos monitorados</div>
             <div class="kpi-value" id="kpi-total">0</div>
           </div>
-          <div class="kpi-card">
+
+          <div class="kpi-card" id="kpi-normal-box">
             <div class="kpi-label">Em estado normal</div>
             <div class="kpi-value" id="kpi-normal">0</div>
           </div>
-          <div class="kpi-card">
+
+          <div class="kpi-card" id="kpi-alerta-box">
             <div class="kpi-label">Em alerta</div>
             <div class="kpi-value" id="kpi-alerta">0</div>
           </div>
-          <div class="kpi-card">
-            <div class="kpi-label">Offline / falha</div>
+
+          <div class="kpi-card" id="kpi-offline-box">
+            <div class="kpi-label">Offline / Falha</div>
             <div class="kpi-value" id="kpi-offline">0</div>
           </div>
+
         </div>
       </div>
 
+      <!-- BARRA DE STATUS WEBSOCKET -->
       <div class="status-bar" id="status">⏳ Conectando ao servidor de monitoramento...</div>
 
+      <!-- PAINEL DE DISPOSITIVOS -->
       <section class="panel">
         <div class="panel-header">
           <div>
             <h3>Visão geral dos dispositivos</h3>
             <p>Clique em um dispositivo para abrir o histórico de eventos.</p>
           </div>
+          <!-- FILTRO POR CONDOMÍNIO -->
+          <div>
+            <select id="filtro-condominio" class="filtro-select">
+              <option value="">Todos os condomínios</option>
+            </select>
+          </div>
         </div>
         <div class="panel-body">
           <div class="grid-cards" id="cards"></div>
         </div>
       </section>
+
     </main>
   </div>
 
+  <!-- ═══════════════════════════════════════ MODAL HISTÓRICO -->
+    <!-- ═══════════════════════════════════════ MODAL HISTÓRICO -->
   <div class="modal-bg" id="modalBg" onclick="fecharModal(event)">
     <div class="modal-content" onclick="event.stopPropagation()">
+      
       <div class="modal-header">
-        <h3 id="modalTitulo">Histórico</h3>
+        <div style="display:flex; align-items:center; gap:12px;">
+          <h3 id="modalTitulo">Histórico</h3>
+          
+          <!-- BOTÃO INJETADO AQUI (inicia escondido) -->
+          <button id="btn-normalizar" style="display:none; background:#10b981; color:white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-weight:bold; font-size:0.85rem; box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2);">
+            ✅ Normalizar Sistema
+          </button>
+          
+        </div>
         <span class="close-btn" onclick="fecharModal()">×</span>
       </div>
+
       <div class="modal-body" id="modalEventos"></div>
     </div>
   </div>
+
 
   <audio id="som-alerta" src="/sounds/alerta.mp3" preload="auto"></audio>
 

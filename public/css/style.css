@@ -867,3 +867,155 @@ button {
     grid-column: span 1;
   }
 }
+
+/* ========================================= */
+/* ADIÇÕES PARA MODERNIZAR (TABELAS E UX)    */
+/* ========================================= */
+
+.table-container {
+  overflow-x: auto;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+}
+
+.data-table th, 
+.data-table td {
+  padding: 14px 18px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+
+.data-table th {
+  background-color: var(--surface-2);
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.data-table td {
+  color: var(--text);
+  font-size: 0.95rem;
+  vertical-align: middle;
+}
+
+.data-table tbody tr {
+  transition: var(--transition);
+}
+
+.data-table tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+.data-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Badge de Cargos (Roles) */
+.badge-role {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: inline-block;
+  text-transform: uppercase;
+}
+
+.role-admin { background: #e0e7ff; color: #3730a3; }
+.role-gerente { background: #fef3c7; color: #92400e; }
+.role-operador { background: #dcfce7; color: #166534; }
+
+/* Botões Pequenos (Para tabelas e cards) */
+.btn-small {
+  height: 32px;
+  padding: 0 12px;
+  font-size: 0.82rem;
+  border-radius: 8px;
+}
+
+.kpi {
+  padding: 15px;
+  border-radius: 10px;
+  background: #f4f6f8;
+  border-left: 6px solid #ccc;
+}
+
+.kpi.ok {
+  border-left-color: #2ecc71;
+  background: #ecfdf5;
+}
+
+.kpi.alerta {
+  border-left-color: #e74c3c;
+  background: #fef2f2;
+}
+
+.kpi.offline {
+  border-left-color: #7f8c8d;
+  background: #f4f4f4;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   ADIÇÕES AO style.css  — KPIs coloridos + filtro
+   Cole no FINAL do seu arquivo public/css/style.css
+═══════════════════════════════════════════════════════════════ */
+
+/* KPI — estado normal (verde) */
+.kpi-card.kpi-ok {
+  border: 1.5px solid #bbf7d0;
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+}
+.kpi-card.kpi-ok .kpi-label { color: #166534; }
+.kpi-card.kpi-ok .kpi-value { color: #16a34a; }
+
+/* KPI — em alerta (vermelho pulsante) */
+.kpi-card.kpi-alerta {
+  border: 1.5px solid #fecaca;
+  background: linear-gradient(135deg, #fff5f5 0%, #fee2e2 100%);
+  animation: pulseKpi 1.8s infinite;
+}
+.kpi-card.kpi-alerta .kpi-label { color: #991b1b; }
+.kpi-card.kpi-alerta .kpi-value { color: #ef4444; }
+
+@keyframes pulseKpi {
+  0%   { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.25); }
+  70%  { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+/* KPI — offline/falha (cinza) */
+.kpi-card.kpi-offline {
+  border: 1.5px solid #e5e7eb;
+  background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+}
+.kpi-card.kpi-offline .kpi-label { color: #6b7280; }
+.kpi-card.kpi-offline .kpi-value { color: #4b5563; }
+
+/* Filtro de condomínio no panel-header */
+.filtro-select {
+  height: 40px;
+  padding: 0 14px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.9rem;
+  width: auto;
+  min-width: 200px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.filtro-select:focus {
+  outline: none;
+  border-color: #b7cff7;
+  box-shadow: 0 0 0 4px rgba(47,111,237,0.10);
+}

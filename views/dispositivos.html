@@ -2,56 +2,106 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Dispositivos - RethaSmart</title>
+  <title>Dispositivos - Retha Monitor</title>
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo-mark">r</div>
+        <div class="sidebar-logo-text">retha</div>
+      </div>
 
-<aside class="sidebar">
-  <div class="sidebar-header">🚨 RethaSmart</div>
-  <nav class="sidebar-menu">
-    <a href="/dashboard">📊 Dashboard</a>
-    <a href="/condominios">🏢 Condomínios</a>
-    <a href="/dispositivos">📟 Dispositivos</a>
-    <a href="/usuarios" id="menu-usuarios" style="display: none;">👥 Usuários</a>
-  </nav>
-  <div class="sidebar-footer">
-    <button onclick="logout()">Sair do Sistema</button>
+      <nav class="sidebar-menu">
+        <a href="/dashboard">
+          <span class="menu-icon">📊</span>
+          <span class="menu-text">Dashboard</span>
+        </a>
+        <a href="/condominios">
+          <span class="menu-icon">🏢</span>
+          <span class="menu-text">Condomínios</span>
+        </a>
+        <a href="/dispositivos" class="active">
+          <span class="menu-icon">📟</span>
+          <span class="menu-text">Dispositivos</span>
+        </a>
+        <a href="/usuarios" id="menu-usuarios" style="display:none;">
+          <span class="menu-icon">👥</span>
+          <span class="menu-text">Usuários</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button onclick="logout()">
+          <span class="menu-icon">↩</span>
+          <span class="menu-text">Sair</span>
+        </button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <div class="page-title">
+          <h1>Dispositivos</h1>
+          <p>Gerencie as centrais de incêndio (Placas ESP32) da operação.</p>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom: 22px;">
+        <div class="section-title">
+          <h3>Novo Dispositivo</h3>
+          <p>Cadastre uma nova placa na rede informando o ID único.</p>
+        </div>
+        <div class="form-grid">
+          <div class="col-4">
+            <label>Device ID (MAC ou ID)</label>
+            <input type="text" id="device_id" placeholder="Ex: ESP32-001">
+          </div>
+          <div class="col-4">
+            <label>Nome / Identificação</label>
+            <input type="text" id="nome" placeholder="Ex: Bloco A - Térreo">
+          </div>
+          <div class="col-4">
+            <label>Condomínio Vinculado</label>
+            <select id="condominio_id">
+              <option value="">Selecione o condomínio</option>
+            </select>
+          </div>
+          <div class="col-12" style="text-align: right;">
+            <button class="btn-primary" onclick="criarDispositivo()">Cadastrar Dispositivo</button>
+          </div>
+        </div>
+      </div>
+
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <h3>Dispositivos Cadastrados</h3>
+            <p>Lista de equipamentos, chaves API e integrações.</p>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div id="lista" class="grid-cards"></div>
+        </div>
+      </section>
+    </main>
   </div>
-</aside>
 
-<main class="main-content">
-  <div class="card">
-    <h3>📡 Novo Dispositivo</h3>
-    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
-      <input type="text" id="device_id" placeholder="Device ID (ex: ESP32-001)">
-      <input type="text" id="nome" placeholder="Nome (ex: Portaria Principal)">
-      <select id="condominio_id">
-        <option value="">Selecione o condomínio</option>
-      </select>
-    </div>
-    <button class="btn-primary" onclick="criarDispositivo()" style="width: auto;">Cadastrar Dispositivo</button>
-  </div>
-
-  <h3>Dispositivos Cadastrados</h3>
-  <div id="lista" class="grid-cards"></div>
-</main>
-
-<script src="/js/auth.js"></script>
-<script src="/js/dispositivos.js"></script>
-<script>
-  function verificarAcesso() {
-    const token = localStorage.getItem('token');
-    if (!token) return;
-    try {
-      const payloadDecoded = JSON.parse(atob(token.split('.')[1]));
-      if (payloadDecoded.role === 'admin') {
-        document.getElementById('menu-usuarios').style.display = 'flex';
-      }
-    } catch (err) { console.error(err); }
-  }
-  verificarAcesso();
-</script>
-
+  <script src="/js/auth.js"></script>
+  <script src="/js/dispositivos.js"></script>
+  <script>
+    function verificarAcesso() {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+      try {
+        const payloadDecoded = JSON.parse(atob(token.split('.')[1]));
+        if (payloadDecoded.role === 'admin') {
+          document.getElementById('menu-usuarios').style.display = 'flex';
+        }
+      } catch (err) { console.error(err); }
+    }
+    verificarAcesso();
+  </script>
 </body>
 </html>

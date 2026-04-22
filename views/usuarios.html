@@ -2,62 +2,120 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Usuários - Admin Panel</title>
+  <title>Usuários - Retha Monitor</title>
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-
-<aside class="sidebar">
-  <div class="sidebar-header">🚨 RethaSmart</div>
-  <nav class="sidebar-menu">
-    <a href="/dashboard">📊 Dashboard</a>
-    <a href="/condominios">🏢 Condomínios</a>
-    <a href="/dispositivos">📟 Dispositivos</a>
-    <a href="/usuarios" id="menu-usuarios">👥 Usuários</a>
-  </nav>
-  <div class="sidebar-footer">
-    <button onclick="logout()">Sair do Sistema</button>
-  </div>
-</aside>
-
-<main class="main-content">
-  
-  <div style="display: grid; grid-template-columns: 350px 1fr; gap: 20px;">
-    
-    <!-- Formulário de Criação -->
-    <div class="card">
-      <h3>Criar Novo Usuário</h3>
-      <input id="nome" placeholder="Nome Completo">
-      <input id="email" type="email" placeholder="Email de acesso">
-      <input id="senha" type="password" placeholder="Definir Senha">
-
-      <label style="font-size: 0.85rem; font-weight: bold; color: var(--text-muted);">Nível de Acesso</label>
-      <select id="role">
-        <option value="operador">Operador (Limita por Condomínio)</option>
-        <option value="gerente">Gerente (Múltiplos)</option>
-        <option value="admin">Administrador (Ver tudo)</option>
-      </select>
-
-      <label style="font-size: 0.85rem; font-weight: bold; color: var(--text-muted);">Vincular Condomínios (Segure CTRL)</label>
-      <select id="condominios" multiple style="height: 120px; resize: vertical;"></select>
-
-      <button class="btn-primary" onclick="criarUsuario()">Criar Usuário</button>
-      <div id="msg" class="msg"></div>
-    </div>
-
-    <!-- Tabela de Gestão de Usuários (Apenas layout visual por enquanto) -->
-    <div class="card">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <h3 style="margin: 0;">Gestão de Usuários</h3>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo-mark">r</div>
+        <div class="sidebar-logo-text">retha</div>
       </div>
-      <div>
-        <!-- Aqui entra a tabela que vamos fazer na próxima etapa -->
-        <p style="color: var(--text-muted);">Lista de usuários cadastrados aparecerá aqui...</p>
+
+      <nav class="sidebar-menu">
+        <a href="/dashboard">
+          <span class="menu-icon">📊</span>
+          <span class="menu-text">Dashboard</span>
+        </a>
+        <a href="/condominios">
+          <span class="menu-icon">🏢</span>
+          <span class="menu-text">Condomínios</span>
+        </a>
+        <a href="/dispositivos">
+          <span class="menu-icon">📟</span>
+          <span class="menu-text">Dispositivos</span>
+        </a>
+        <a href="/usuarios" class="active" id="menu-usuarios">
+          <span class="menu-icon">👥</span>
+          <span class="menu-text">Usuários</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button onclick="logout()">
+          <span class="menu-icon">↩</span>
+          <span class="menu-text">Sair</span>
+        </button>
       </div>
-    </div>
-    
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <div class="page-title">
+          <h1>Gestão de Usuários</h1>
+          <p>Administre os acessos e permissões do sistema.</p>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <!-- Formulário de Criação -->
+        <div class="col-4">
+          <div class="card">
+            <div class="section-title">
+              <h3>Novo Usuário</h3>
+              <p>Adicione um operador ou administrador.</p>
+            </div>
+            
+            <label>Nome Completo</label>
+            <input id="nome" placeholder="Ex: Maria Souza">
+            
+            <label style="margin-top: 10px;">E-mail de Acesso</label>
+            <input id="email" type="email" placeholder="email@dominio.com">
+            
+            <label style="margin-top: 10px;">Definir Senha</label>
+            <input id="senha" type="password" placeholder="Mínimo 6 caracteres">
+
+            <label style="margin-top: 10px;">Nível de Acesso</label>
+            <select id="role">
+              <option value="operador">Operador (Restrito)</option>
+              <option value="gerente">Gerente (Múltiplos)</option>
+              <option value="admin">Administrador (Total)</option>
+            </select>
+
+            <label style="margin-top: 10px;">Vincular Condomínios (Segure CTRL)</label>
+            <select id="condominios" multiple></select>
+
+            <button class="btn-primary" style="width: 100%; margin-top: 18px;" onclick="criarUsuario()">Criar Usuário</button>
+            <div id="msg" class="msg"></div>
+          </div>
+        </div>
+
+        <!-- Tabela de Gestão de Usuários -->
+        <div class="col-8">
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>Usuários Cadastrados</h3>
+                <p>Lista de todas as contas do sistema.</p>
+              </div>
+            </div>
+            <div class="panel-body" style="padding: 0;">
+              <div class="table-container">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Nome</th>
+                      <th>E-mail</th>
+                      <th>Permissão</th>
+                      <th>Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody id="lista-usuarios">
+                    <tr>
+                      <td colspan="5" style="text-align: center; color: var(--muted); padding: 20px;">Carregando usuários...</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+      </div>
+    </main>
   </div>
-</main>
 
 <script src="/js/auth.js"></script>
 <script>
@@ -84,8 +142,6 @@ async function carregarCondominios() {
     const res = await fetch('/api/usuarios/condominios', { headers: authHeader() });
     const data = await res.json();
     const select = document.getElementById('condominios');
-    
-    // Tratamento para caso venha como array direto ou objeto com a key .condominios
     const lista = Array.isArray(data) ? data : (data.condominios || []);
     
     lista.forEach(c => {
@@ -95,6 +151,42 @@ async function carregarCondominios() {
       select.appendChild(opt);
     });
   } catch(e) { console.error("Erro", e); }
+}
+
+// 🔥 NOVA FUNÇÃO: Busca e plota na tabela
+async function carregarUsuarios() {
+  try {
+    const res = await fetch('/api/usuarios', { headers: authHeader() });
+    if (res.status === 401) return logout();
+    if (!res.ok) throw new Error('Falha ao listar usuários');
+
+    const data = await res.json();
+    const lista = document.getElementById('lista-usuarios');
+    lista.innerHTML = '';
+
+    if (data.length === 0) {
+      lista.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 20px;">Nenhum usuário.</td></tr>';
+      return;
+    }
+
+    data.forEach(user => {
+      const tr = document.createElement('tr');
+      let badgeClass = 'role-operador';
+      if (user.role === 'admin') badgeClass = 'role-admin';
+      else if (user.role === 'gerente') badgeClass = 'role-gerente';
+
+      tr.innerHTML = `
+        <td><strong>#${user.id}</strong></td>
+        <td>${user.nome || '<span style="color:var(--muted)">Sem nome</span>'}</td>
+        <td>${user.email}</td>
+        <td><span class="badge-role ${badgeClass}">${user.role}</span></td>
+        <td><button class="btn-secondary btn-small" onclick="alert('Funcionalidade de editar em breve')">Editar</button></td>
+      `;
+      lista.appendChild(tr);
+    });
+  } catch(e) {
+    document.getElementById('lista-usuarios').innerHTML = '<tr><td colspan="5" style="color:red;text-align:center;">Erro ao carregar lista.</td></tr>';
+  }
 }
 
 async function criarUsuario() {
@@ -115,15 +207,15 @@ async function criarUsuario() {
     });
     const data = await res.json();
 
-    if (!res.ok) {
-      mostrarMsg(data.erro || "Erro", 'erro');
-      return;
-    }
+    if (!res.ok) return mostrarMsg(data.erro || "Erro", 'erro');
 
     mostrarMsg('Usuário criado com sucesso!', 'ok');
     document.getElementById('nome').value = '';
     document.getElementById('email').value = '';
     document.getElementById('senha').value = '';
+    
+    // Atualiza a tabela na hora
+    carregarUsuarios();
     
   } catch (err) {
     mostrarMsg('Erro no servidor', 'erro');
@@ -131,7 +223,7 @@ async function criarUsuario() {
 }
 
 carregarCondominios();
+carregarUsuarios();
 </script>
-
 </body>
 </html>
