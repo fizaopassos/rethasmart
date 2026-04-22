@@ -2,6 +2,32 @@ let dispositivos  = [];
 let ultimosEventos = {};
 
 // ─── Utilitários ────────────────────────────────────────────
+
+function getUserFromToken() {
+  const token = localStorage.getItem("token");
+  if (!token) return null;
+
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload;
+  } catch {
+    return null;
+  }
+}
+
+function aplicarPermissoes() {
+  const user = getUserFromToken();
+  if (!user) return;
+
+  if (user.role === 'admin') {
+    // 🔥 NOVA LÓGICA: Pega o menu oculto do HTML e exibe
+    const menuUsuarios = document.getElementById('menu-usuarios');
+    if (menuUsuarios) {
+      menuUsuarios.style.display = 'inline-block';
+    }
+  }
+}
+
 function logout() {
   localStorage.removeItem("token");
   window.location.href = "/login";
@@ -16,10 +42,40 @@ function formatarData(data) {
   return new Date(data).toLocaleString("pt-BR");
 }
 
+function atualizarKPIs() {
+  const total = dispositivos.length;
+  let normal = 0;
+  let alerta = 0;
+  let offline = 0;
+
+  dispositivos.forEach(disp => {
+    const ult = ultimosEventos[disp.device_id];
+    const status = classificarStatus(ult?.evento, disp);
+
+    if (status.label === 'Normal') normal++;
+    else if (status.label === 'Em Alerta') alerta++;
+    else offline++;
+  });
+
+  const elTotal = document.getElementById('kpi-total');
+  const elNormal = document.getElementById('kpi-normal');
+  const elAlerta = document.getElementById('kpi-alerta');
+  const elOffline = document.getElementById('kpi-offline');
+
+  if (elTotal) elTotal.textContent = total;
+  if (elNormal) elNormal.textContent = normal;
+  if (elAlerta) elAlerta.textContent = alerta;
+  if (elOffline) elOffline.textContent = offline;
+}
+
+renderizarCards();
+atualizarKPIs();
+
+
 function classificarStatus(evento, disp) {
 
   // 🔴 OFFLINE tem prioridade máxima
-  if (disp.status === 'offline') {
+  if (disp && disp.status === 'offline') {
     return {
       label: 'Offline',
       borderClass: 'status-offline',
@@ -122,21 +178,22 @@ function renderizarCards() {
     const status = classificarStatus(ult?.evento, disp);
 
     // 🟢 ONLINE / OFFLINE
-let statusOnline = disp.status === 'online';
+    let statusOnline = disp.status === 'online';
 
-if (!disp.status && disp.last_seen) {
-  const diff = (new Date() - new Date(disp.last_seen)) / 1000;
-  statusOnline = diff < 30;
-}
+    if (!disp.status && disp.last_seen) {
+      const diff = (new Date() - new Date(disp.last_seen)) / 1000;
+      statusOnline = diff < 30;
+    }
+    
     const card = document.createElement('div');
     card.className = `device-card ${status.borderClass}`;
     card.setAttribute('data-device-id', disp.device_id);
     card.onclick = () => abrirModal(disp);
 
-// 🔴 OFFLINE visual
-if (disp.status === 'offline') {
-  card.style.opacity = "0.6";
-}
+    // 🔴 OFFLINE visual
+    if (disp.status === 'offline') {
+      card.style.opacity = "0.6";
+    }
 
     card.innerHTML = `
       <div class="device-top">
@@ -184,27 +241,26 @@ function iniciarWebSocket() {
         ultimosEventos[ev.device_id] = ev;
 
         // 🔥 atualiza status em memória
-          const disp = dispositivos.find(d => d.device_id === ev.device_id);
-
-          const eventoLower = ev.evento.toLowerCase();
-
-          if (eventoLower.includes('offline')) {
-              disp.status = 'offline';
-                    }
-
+        const disp = dispositivos.find(d => d.device_id === ev.device_id);
+        if (disp) {
+            const eventoLower = ev.evento.toLowerCase();
+            if (eventoLower.includes('offline')) {
+                disp.status = 'offline';
+            }
             if (eventoLower.includes('online')) {
-                   disp.status = 'online';
-              }
+                disp.status = 'online';
+            }
+        }
 
-          renderizarCards();
+        renderizarCards();
         destacarCard(ev.device_id);
         tocarSom();
 
         // Se modal estiver aberto para este dispositivo, adiciona evento no topo
-        const tituloModal = document.getElementById('modalTitulo').innerText;
-        const modalAberto = document.getElementById('modalBg').style.display === 'flex';
-        if (modalAberto && tituloModal.includes(ev.device_id)) {
-          const cor = classificarStatus(ev.evento);
+        const modalTitulo = document.getElementById('modalTitulo');
+        const modalBg = document.getElementById('modalBg');
+        if (modalTitulo && modalBg && modalBg.style.display === 'flex' && modalTitulo.innerText.includes(ev.device_id)) {
+          const cor = classificarEvento(ev.evento);
           const corBorda = cor.borderClass === 'status-alerta' ? '#e74c3c' :
                            cor.borderClass === 'status-falha'  ? '#f1c40f' : '#2ecc71';
           const item = document.createElement('div');
@@ -263,44 +319,37 @@ async function abrirModal(dispositivo) {
   }
 
   eventos.forEach(ev => {
-    const st = classificarStatus(ev.evento, dispositivo);
-
     let cor = "#2ecc71"; // verde padrão
 
-const texto = (ev.evento || '').toLowerCase();
+    const texto = (ev.evento || '').toLowerCase();
 
-// 🔴 alerta
-if (texto.includes('alarme') || texto.includes('incendio') || texto.includes('fogo')) {
-  cor = "#e74c3c";
-}
-
-// 🟡 falha
-else if (texto.includes('falha') || texto.includes('erro') || texto.includes('defeito')) {
-  cor = "#f1c40f";
-}
-
-// ⚫ offline
-else if (texto.includes('offline')) {
-  cor = "#7f8c8d";
-}
-
-// 🟢 online (opcional)
-else if (texto.includes('online')) {
-  cor = "#2ecc71";
-}
+    // 🔴 alerta
+    if (texto.includes('alarme') || texto.includes('incendio') || texto.includes('fogo')) {
+      cor = "#e74c3c";
+    }
+    // 🟡 falha
+    else if (texto.includes('falha') || texto.includes('erro') || texto.includes('defeito')) {
+      cor = "#f1c40f";
+    }
+    // ⚫ offline
+    else if (texto.includes('offline')) {
+      cor = "#7f8c8d";
+    }
+    // 🟢 online (opcional)
+    else if (texto.includes('online')) {
+      cor = "#2ecc71";
+    }
 
     const item = document.createElement('div');
     item.className = 'timeline-item';
 
     item.innerHTML = `
       <div class="timeline-dot" style="background:${cor}"></div>
-
       <div class="timeline-content" style="border-left:4px solid ${cor}">
         <div class="timeline-top">
           <span class="timeline-event">${ev.evento}</span>
           <span class="timeline-date">${formatarData(ev.created_at)}</span>
         </div>
-
         <div class="timeline-extra">
           Origem: ${ev.origem || '-'}
         </div>
@@ -322,6 +371,7 @@ function fecharModal(event) {
 // ─── Inicialização ───────────────────────────────────────────
 async function iniciar() {
   try {
+    aplicarPermissoes(); // Agora funciona sem travar nada!
     await carregarDispositivos();
     await carregarEventosIniciais();
     renderizarCards();

@@ -1,0 +1,153 @@
+:root {
+  --bg: #f1f5f9;
+  --card: #ffffff;
+  --primary: #2563eb;
+  --danger: #ef4444;
+  --success: #22c55e;
+  --text: #0f172a;
+  --muted: #64748b;
+  --border: #e2e8f0;
+}
+
+/* RESET */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* NAVBAR PADRÃO */
+header {
+  background: #0f172a;
+  color: white;
+  padding: 14px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+nav {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+nav a {
+  color: #cbd5f5;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+nav a:hover {
+  color: white;
+}
+
+nav button {
+  background: var(--danger);
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+}
+
+/* CONTAINER */
+.container {
+  max-width: 1200px;
+  margin: 30px auto;
+  padding: 0 20px;
+}
+
+/* CARD */
+.card {
+  background: var(--card);
+  padding: 20px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+}
+
+/* INPUTS */
+input, select {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+}
+
+/* BOTÕES */
+button {
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 6px;
+  margin-top: 12px;
+  cursor: pointer;
+}
+
+/* GRID DISPOSITIVOS (REDUZIDO ✅) */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+/* CARD DISPOSITIVO (MENOR ✅) */
+.device {
+  padding: 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: white;
+  font-size: 0.9rem;
+}
+
+.device strong {
+  display: block;
+  font-size: 0.95rem;
+}
+
+/* STATUS */
+.badge {
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.ok { background: #dcfce7; color: #166534; }
+.alerta { background: #fee2e2; color: #991b1b; }
+.falha { background: #fef3c7; color: #92400e; }
+
+/* LOGIN */
+.login-box {
+  max-width: 360px;
+  margin: 100px auto;
+  background: white;
+  padding: 30px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+}
+
+h2, h3 {
+  margin-bottom: 15px;
+}
+
+.msg {
+  margin-top: 10px;
+  text-align: center;
+}
+
+.erro { color: var(--danger); }
+.ok-text { color: var(--success); }

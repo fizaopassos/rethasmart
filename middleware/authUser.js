@@ -23,4 +23,5 @@ function autenticar(req, res, next) {
     }
 }
 
+
 module.exports = autenticar;

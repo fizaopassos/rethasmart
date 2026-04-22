@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Usuários - Admin Panel</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-header">🚨 RethaSmart</div>
+  <nav class="sidebar-menu">
+    <a href="/dashboard">📊 Dashboard</a>
+    <a href="/condominios">🏢 Condomínios</a>
+    <a href="/dispositivos">📟 Dispositivos</a>
+    <a href="/usuarios" id="menu-usuarios">👥 Usuários</a>
+  </nav>
+  <div class="sidebar-footer">
+    <button onclick="logout()">Sair do Sistema</button>
+  </div>
+</aside>
+
+<main class="main-content">
+  
+  <div style="display: grid; grid-template-columns: 350px 1fr; gap: 20px;">
+    
+    <!-- Formulário de Criação -->
+    <div class="card">
+      <h3>Criar Novo Usuário</h3>
+      <input id="nome" placeholder="Nome Completo">
+      <input id="email" type="email" placeholder="Email de acesso">
+      <input id="senha" type="password" placeholder="Definir Senha">
+
+      <label style="font-size: 0.85rem; font-weight: bold; color: var(--text-muted);">Nível de Acesso</label>
+      <select id="role">
+        <option value="operador">Operador (Limita por Condomínio)</option>
+        <option value="gerente">Gerente (Múltiplos)</option>
+        <option value="admin">Administrador (Ver tudo)</option>
+      </select>
+
+      <label style="font-size: 0.85rem; font-weight: bold; color: var(--text-muted);">Vincular Condomínios (Segure CTRL)</label>
+      <select id="condominios" multiple style="height: 120px; resize: vertical;"></select>
+
+      <button class="btn-primary" onclick="criarUsuario()">Criar Usuário</button>
+      <div id="msg" class="msg"></div>
+    </div>
+
+    <!-- Tabela de Gestão de Usuários (Apenas layout visual por enquanto) -->
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h3 style="margin: 0;">Gestão de Usuários</h3>
+      </div>
+      <div>
+        <!-- Aqui entra a tabela que vamos fazer na próxima etapa -->
+        <p style="color: var(--text-muted);">Lista de usuários cadastrados aparecerá aqui...</p>
+      </div>
+    </div>
+    
+  </div>
+</main>
+
+<script src="/js/auth.js"></script>
+<script>
+function verificarAcesso() {
+  const token = localStorage.getItem('token');
+  if (!token) return window.location.href = '/login';
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    if (payload.role !== 'admin') window.location.href = '/dashboard';
+  } catch (err) { window.location.href = '/login'; }
+}
+
+verificarAcesso();
+
+function mostrarMsg(texto, tipo) {
+  const el = document.getElementById('msg');
+  el.innerText = texto;
+  el.className = 'msg ' + tipo;
+  setTimeout(() => { el.className = 'msg'; el.innerText = ''; }, 4000);
+}
+
+async function carregarCondominios() {
+  try {
+    const res = await fetch('/api/usuarios/condominios', { headers: authHeader() });
+    const data = await res.json();
+    const select = document.getElementById('condominios');
+    
+    // Tratamento para caso venha como array direto ou objeto com a key .condominios
+    const lista = Array.isArray(data) ? data : (data.condominios || []);
+    
+    lista.forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c.id;
+      opt.textContent = c.nome;
+      select.appendChild(opt);
+    });
+  } catch(e) { console.error("Erro", e); }
+}
+
+async function criarUsuario() {
+  const nome = document.getElementById('nome').value;
+  const email = document.getElementById('email').value;
+  const senha = document.getElementById('senha').value;
+  const role = document.getElementById('role').value;
+  const condSelect = document.getElementById('condominios');
+  const condominios = Array.from(condSelect.selectedOptions).map(o => o.value);
+
+  if(!email || !senha) return mostrarMsg("Preencha email e senha", "erro");
+
+  try {
+    const res = await fetch('/api/usuarios', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...authHeader() },
+      body: JSON.stringify({ nome, email, senha, role, condominios })
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      mostrarMsg(data.erro || "Erro", 'erro');
+      return;
+    }
+
+    mostrarMsg('Usuário criado com sucesso!', 'ok');
+    document.getElementById('nome').value = '';
+    document.getElementById('email').value = '';
+    document.getElementById('senha').value = '';
+    
+  } catch (err) {
+    mostrarMsg('Erro no servidor', 'erro');
+  }
+}
+
+carregarCondominios();
+</script>
+
+</body>
+</html>

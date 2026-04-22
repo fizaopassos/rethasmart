@@ -4,7 +4,7 @@ function getToken() {
 
 function logout() {
   localStorage.removeItem("token");
-  window.location.href = "/login.html";
+  window.location.href = "/login";
 }
 
 function authHeader() {
@@ -14,7 +14,21 @@ function authHeader() {
 }
 
 function checkAuth() {
-  if (!getToken()) {
+  const token = getToken();
+
+  if (!token) {
+    logout();
+    return;
+  }
+
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+
+    const exp = payload.exp * 1000;
+    if (Date.now() > exp) {
+      logout();
+    }
+  } catch {
     logout();
   }
 }

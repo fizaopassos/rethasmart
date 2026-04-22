@@ -5,6 +5,7 @@
   const http = require('http');
   const { WebSocketServer } = require('ws');
   const pool = require('./db');
+  
 
   const app = express();
   const server = http.createServer(app);
@@ -43,13 +44,20 @@
   app.use('/api/eventos',     require('./routes/eventos'));
 
   // Rotas de páginas
-  app.get('/login',       (req, res) => res.sendFile(path.join(__dirname, 'views', 'login.html')));
-  app.get('/dashboard',   (req, res) => res.sendFile(path.join(__dirname, 'views', 'dashboard.html')));
-  app.get('/condominios', (req, res) => res.sendFile(path.join(__dirname, 'views', 'condominios.html')));
-  app.get('/dispositivos',(req, res) => res.sendFile(path.join(__dirname, 'views', 'dispositivos.html')));
-  app.get('/',            (req, res) => res.redirect('/login'));
+app.get('/login',       (req, res) => res.sendFile(path.join(__dirname, 'views', 'login.html')));
+app.get('/dashboard',   (req, res) => res.sendFile(path.join(__dirname, 'views', 'dashboard.html')));
+app.get('/condominios', (req, res) => res.sendFile(path.join(__dirname, 'views', 'condominios.html')));
+app.get('/dispositivos',(req, res) => res.sendFile(path.join(__dirname, 'views', 'dispositivos.html')));
+app.use('/api/usuarios', require('./routes/usuarios'));
 
-  const PORT = process.env.PORT || 3000;
+
+// 👇 ADICIONA AQUI
+app.get('/usuarios', (req, res) => res.sendFile(path.join(__dirname, 'views', 'usuarios.html')));
+
+
+app.get('/', (req, res) => res.redirect('/login'));
+
+  const PORT = process.env.PORT || 3001;
   server.listen(PORT, '0.0.0.0', () => {
     iniciarMonitoramento(app, pool);
   console.log(`Servidor rodando em http://localhost:${PORT}`);

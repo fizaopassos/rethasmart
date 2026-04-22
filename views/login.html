@@ -2,25 +2,84 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Login - RethaSmart</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Retha Monitor</title>
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
+  <div class="login-page">
+    <section class="login-hero">
+      <div class="login-brand">
+        <div class="login-brand-mark">r</div>
+        <div class="login-brand-text">retha</div>
+      </div>
 
-<div class="login-box">
-  <h2>RethaSmart</h2>
+      <div class="login-copy">
+        <h1>Monitoramento inteligente para centrais de incêndio</h1>
+        <p>
+          Acompanhe em tempo real o status dos dispositivos, eventos de alarme, falhas,
+          conectividade e ocorrências operacionais em uma única central.
+        </p>
 
-    <input type="email" id="email" placeholder="E-mail">
-    <input type="password" id="senha" placeholder="Senha">
+        <div class="monitor-box">
+          <h3>Visão operacional</h3>
+          <p style="color: var(--muted);">
+            Plataforma pensada para operação rápida, resposta imediata e rastreabilidade dos eventos.
+          </p>
 
+          <div class="monitor-items">
+            <div class="monitor-item">
+              <div class="monitor-left">
+                <span class="signal-dot signal-ok"></span>
+                <strong>Dispositivos online</strong>
+              </div>
+              <span>Monitoramento contínuo</span>
+            </div>
 
-  <button onclick="login()">Entrar</button>
+            <div class="monitor-item">
+              <div class="monitor-left">
+                <span class="signal-dot signal-alert"></span>
+                <strong>Alarmes e ocorrências</strong>
+              </div>
+              <span>Resposta em tempo real</span>
+            </div>
 
-  <div id="erro" class="erro"></div>
-</div>
+            <div class="monitor-item">
+              <div class="monitor-left">
+                <span class="signal-dot signal-warn"></span>
+                <strong>Falhas e supervisão</strong>
+              </div>
+              <span>Histórico centralizado</span>
+            </div>
+          </div>
+        </div>
+      </div>
 
-<script src="/js/auth.js"></script>
-<script src="/js/login.js"></script>
+      <div class="login-footer">
+        Desenvolvido pelo Departamento de TI - Retha
+      </div>
+    </section>
 
+    <section class="login-panel">
+      <div class="login-box">
+        <h2>Acessar plataforma</h2>
+        <p class="login-subtitle">Entre com seu e-mail e senha para acessar a central.</p>
+
+        <input type="email" id="email" placeholder="E-mail" autocomplete="username">
+        <input type="password" id="senha" placeholder="Senha" autocomplete="current-password">
+
+        <button class="btn-primary" style="width:100%;" onclick="login()">Entrar</button>
+
+        <div id="erro" class="msg erro"></div>
+
+        <div class="login-footer">
+          Retha Monitor • operação e rastreabilidade em tempo real
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script src="/js/auth.js"></script>
+  <script src="/js/login.js"></script>
 </body>
 </html>

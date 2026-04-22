@@ -3,39 +3,130 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RethaSmart - Dashboard</title>
-  <link rel="stylesheet" href="/css/dashboard.css">
+  <title>Dashboard - Retha Monitor</title>
+  <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo-mark">r</div>
+        <div class="sidebar-logo-text">retha</div>
+      </div>
 
-<header>
-  <div class="header-logo">🚨 RethaSmart</div>
-  <nav>
-    <a href="/condominios">Condomínios</a>
-    <a href="/dispositivos">Dispositivos</a>
-    <button onclick="logout()">Sair</button>
-  </nav>
-</header>
+      <nav class="sidebar-menu">
+        <a href="/dashboard" class="active">
+          <span class="menu-icon">📊</span>
+          <span class="menu-text">Dashboard</span>
+        </a>
+        <a href="/condominios">
+          <span class="menu-icon">🏢</span>
+          <span class="menu-text">Condomínios</span>
+        </a>
+        <a href="/dispositivos">
+          <span class="menu-icon">📟</span>
+          <span class="menu-text">Dispositivos</span>
+        </a>
+        <a href="/usuarios" id="menu-usuarios" style="display:none;">
+          <span class="menu-icon">👥</span>
+          <span class="menu-text">Usuários</span>
+        </a>
+      </nav>
 
-<div class="container">
-  <div class="status-bar" id="status">⏳ Conectando...</div>
-  <div class="grid-cards" id="cards"></div>
-</div>
+      <div class="sidebar-footer">
+        <button onclick="logout()">
+          <span class="menu-icon">↩</span>
+          <span class="menu-text">Sair</span>
+        </button>
+      </div>
+    </aside>
 
-<!-- Modal de histórico -->
-<div class="modal-bg" id="modalBg" onclick="fecharModal(event)">
-  <div class="modal-content" onclick="event.stopPropagation()">
-    <div class="modal-header">
-      <h3 id="modalTitulo">Histórico</h3>
-      <span class="close-btn" onclick="fecharModal()">×</span>
-    </div>
-    <div class="modal-body" id="modalEventos"></div>
+    <main class="main">
+      <div class="topbar">
+        <div class="page-title">
+          <h1>Central de Monitoramento</h1>
+          <p>Status em tempo real das centrais de incêndio e dispositivos conectados.</p>
+        </div>
+
+        <div class="topbar-right">
+          <div class="top-chip">
+            <small>Ambiente</small>
+            <strong>Operação ao Vivo</strong>
+          </div>
+          <div class="user-chip" id="userChip">
+            <small>Usuário conectado</small>
+            <strong>Carregando...</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="container-section">
+        <div class="kpi-grid">
+          <div class="kpi-card primary">
+            <div class="kpi-label">Dispositivos monitorados</div>
+            <div class="kpi-value" id="kpi-total">0</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Em estado normal</div>
+            <div class="kpi-value" id="kpi-normal">0</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Em alerta</div>
+            <div class="kpi-value" id="kpi-alerta">0</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Offline / falha</div>
+            <div class="kpi-value" id="kpi-offline">0</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="status-bar" id="status">⏳ Conectando ao servidor de monitoramento...</div>
+
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <h3>Visão geral dos dispositivos</h3>
+            <p>Clique em um dispositivo para abrir o histórico de eventos.</p>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="grid-cards" id="cards"></div>
+        </div>
+      </section>
+    </main>
   </div>
-</div>
 
-<!-- Som de alerta (coloque o arquivo em public/sounds/alerta.mp3) -->
-<audio id="som-alerta" src="/sounds/alerta.mp3" preload="auto"></audio>
+  <div class="modal-bg" id="modalBg" onclick="fecharModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3 id="modalTitulo">Histórico</h3>
+        <span class="close-btn" onclick="fecharModal()">×</span>
+      </div>
+      <div class="modal-body" id="modalEventos"></div>
+    </div>
+  </div>
 
-<script src="/js/dashboard.js"></script>
+  <audio id="som-alerta" src="/sounds/alerta.mp3" preload="auto"></audio>
+
+  <script src="/js/dashboard.js"></script>
+  <script>
+    function preencherUsuario() {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        const nome = payload.nome || payload.email || 'Usuário';
+        const role = payload.role || 'operador';
+        const chip = document.getElementById('userChip');
+        chip.innerHTML = '<small>Usuário conectado</small><strong>' + nome + ' (' + role + ')</strong>';
+
+        if (role === 'admin') {
+          document.getElementById('menu-usuarios').style.display = 'flex';
+        }
+      } catch (e) {}
+    }
+    preencherUsuario();
+  </script>
 </body>
 </html>
